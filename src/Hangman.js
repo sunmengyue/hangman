@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { randomWord } from './words';
 import './Hangman.css';
 import img0 from './0.jpg';
 import img1 from './1.jpg';
@@ -17,8 +18,9 @@ class Hangman extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { nWrong: 0, guessed: new Set(), answer: 'apple' };
+    this.state = { nWrong: 0, guessed: new Set(), answer: randomWord() };
     this.handleGuess = this.handleGuess.bind(this);
+    this.handleClick = this.handleClick.bind(this);
   }
 
   /** guessedWord: show current-state of word:
@@ -56,14 +58,33 @@ class Hangman extends Component {
     ));
   }
 
+  handleClick() {
+    this.setState({ nWrong: 0, guessed: new Set(), answer: randomWord() });
+  }
+
   /** render: render game */
   render() {
+    const gameOver = this.state.nWrong >= this.props.maxWrong;
+    const isWinner = this.guessedWord().join('') === this.state.answer;
+    let gameState = this.generateButtons();
+    if (gameOver) gameState = <h3>You lose!</h3>;
+    if (isWinner) gameState = <h3>You Win !!!!!</h3>;
     return (
       <div className="Hangman">
         <h1>Hangman</h1>
-        <img src={this.props.images[this.state.nWrong]} />
-        <p className="Hangman-word">{this.guessedWord()}</p>
-        <p className="Hangman-btns">{this.generateButtons()}</p>
+        <img
+          src={this.props.images[this.state.nWrong]}
+          alt={`${this.state.nWrong} guesses`}
+        />
+        <h2>{`${this.state.nWrong}/${this.props.maxWrong} wrong guesses`} </h2>
+        <p className="Hangman-word">
+          {!gameOver ? this.guessedWord() : this.state.answer}
+        </p>
+        <p className="Hangman-btns">{gameState}</p>
+
+        <button onClick={this.handleClick} id="reset">
+          Restart
+        </button>
       </div>
     );
   }
